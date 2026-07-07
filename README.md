@@ -1,2 +1,3 @@
 # Nolib
-Personnal component-oriented native framework library
+
+Personnal component-oriented native framework library.
