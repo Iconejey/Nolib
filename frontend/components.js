@@ -88,7 +88,16 @@ function raw(strings, ...values) {
  * @extends HTMLElement
  */
 class CustomComponent extends HTMLElement {
+	static defined = false;
+
 	constructor() {
+		const componentClass = new.target;
+		if (!componentClass.defined) {
+			if (!componentClass.tag) throw new Error('Missing custom component tag');
+			componentClass.defined = true;
+			customElements.define(componentClass.tag, componentClass);
+		}
+
 		super();
 
 		// Reate getters for each selector in class static selectors attribute
@@ -200,26 +209,6 @@ class CustomComponent extends HTMLElement {
 
 		this[snake_case_name] = this[snake_case_name] || default_present;
 	}
-}
-
-/**
- * Registers a custom component with the browser
- * @param {typeof CustomComponent} componentClass - The class of the custom component to register
- * @example
- * // Define a custom component
- * defineComponent(
- *     class extends CustomComponent {
- *         static tag = 'my-component';
- *
- *         async init() {
- *             this.render`<p>Hello, World!</p>`;
- *         }
- *     }
- * );
- */
-function defineComponent(componentClass) {
-	// Define the custom element
-	customElements.define(componentClass.tag, componentClass);
 }
 
 /**
