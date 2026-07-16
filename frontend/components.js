@@ -90,6 +90,13 @@ function raw(strings, ...values) {
 class CustomComponent extends HTMLElement {
 	static defined = false;
 
+	static get tag() {
+		return this.name
+			?.replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
+			.replace(/([a-z\d])([A-Z])/g, '$1-$2')
+			.toLowerCase();
+	}
+
 	constructor() {
 		const componentClass = new.target;
 		if (!componentClass.defined) {
