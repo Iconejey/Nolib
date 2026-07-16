@@ -82,16 +82,6 @@ function raw(strings, ...values) {
 }
 
 /**
- * Defines a style block in the document head
- * @param {string} string - CSS string to add to the document
- */
-function css(strings, ...values) {
-	const style = document.createElement('style');
-	style.textContent = raw(strings, ...values);
-	document.head.appendChild(style);
-}
-
-/**
  * Base class for creating custom HTML components
  * Extends HTMLElement and provides lifecycle methods
  * @class
