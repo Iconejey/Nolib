@@ -125,7 +125,7 @@ class CustomComponent extends HTMLElement {
 	 * @param {string} attr_name - Name of the attribute
 	 * @param {any} default_value - Default value for the attribute
 	 */
-	stringAttribute(attr_name, default_value, onChange = null) {
+	#str(attr_name, default_value, onChange = null) {
 		// If onchange is an element, bind to its textContent
 		if (onChange instanceof HTMLElement) {
 			const element = onChange;
@@ -152,7 +152,7 @@ class CustomComponent extends HTMLElement {
 	 * @param {string} attr_name - Name of the attribute
 	 * @param {boolean} default_value - Default boolean value
 	 */
-	booleanAttribute(attr_name, default_value, onChange = null) {
+	#bool(attr_name, default_value, onChange = null) {
 		const snake_case_name = attr_name.replaceAll('-', '_');
 		Object.defineProperty(this, snake_case_name, {
 			get: () => this.hasAttribute(attr_name),
@@ -171,7 +171,7 @@ class CustomComponent extends HTMLElement {
 	 * @param {string} attr_name - Name of the attribute
 	 * @param {number} default_value - Default numeric value
 	 */
-	numericAttribute(attr_name, default_value, onChange = null) {
+	#num(attr_name, default_value, onChange = null) {
 		// If onchange is an element, bind to its textContent
 		if (onChange instanceof HTMLElement) {
 			const element = onChange;
@@ -197,7 +197,7 @@ class CustomComponent extends HTMLElement {
 	 * @param {string} class_name - Name of the class
 	 * @param {boolean} default_present - Whether the class is present by default
 	 */
-	defineClass(class_name, default_present, onChange = null) {
+	#class(class_name, default_present, onChange = null) {
 		const snake_case_name = class_name.replaceAll('-', '_');
 		Object.defineProperty(this, snake_case_name, {
 			get: () => this.classList.contains(class_name),
