@@ -5,46 +5,26 @@ Personnal component-oriented native framework library.
 Example:
 
 ```js
-css`
-	example-component {
-		display: block;
+class ExampleComponent extends CustomComponent {
+	static selectors = {
+		$last_toggle_button: 'button:last-of-type',
+		$$toggled_buttons: 'button.toggled',
+		$add_button: 'button.add'
+	};
 
-		& button.toggle {
-			background-color: blue;
+	connectedCallback() {
+		this.#class('hidden', false);
 
-			&.toggled {
-				background-color: green;
-			}
-		}
+		this.innerHTML = html`
+			<span>Example Component</span>
+			<button class="add">Add</button>
+		`;
 
-		& button.add {
-			background-color: red;
-		}
-	}
-`;
-
-defineComponent(
-	class extends CustomComponent {
-		static tag = 'example-component';
-
-		static selectors = {
-			$last_toggle_button: 'button:last-of-type',
-			$$toggled_buttons: 'button.toggled',
-			$add_button: 'button.add'
+		this.$add_button.onclick = () => {
+			const toggle = emmet`button.toggle{Click me}`;
+			toggle.onclick = () => toggle.classList.toggle('toggled');
+			this.appendChild(toggle);
 		};
-
-		connectedCallback() {
-			this.innerHTML = html`
-				<span>Example Component</span>
-				<button class="add">Add</button>
-			`;
-
-			this.$add_button.onclick = () => {
-				const toggle = emmet`button.toggle{Click me}`;
-				toggle.onclick = () => toggle.classList.toggle('toggled');
-				this.appendChild(toggle);
-			};
-		}
 	}
-);
+}
 ```
