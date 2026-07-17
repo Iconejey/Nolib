@@ -75,10 +75,20 @@ Object.defineProperty(HTMLElement.prototype, '$$', {
  * Default tag function for constructing raw strings from template literals
  * @param {TemplateStringsArray} strings - Template strings array
  * @param  {...any} values - Values to interpolate into the template
- * @returns {string} The final HTML string
+ * @returns {string} The final string
  */
 function raw(strings, ...values) {
 	return strings.reduce((result, str, i) => result + str + (i < values.length ? values[i] : ''), '');
+}
+
+/**
+ * Handle html strings and allow self closing custom component tags
+ * @param {TemplateStringsArray} strings - Template strings array
+ * @param  {...any} values - Values to interpolate into the template
+ * @returns {string} The final HTML string
+ */
+function html(strings, ...values) {
+	return raw(strings, ...values).replaceAll(/<(\w+-[\w-]+)[^>]*\/>/gm, (match, tag) => match.replace('/>', `></${tag}>`));
 }
 
 /**
@@ -97,17 +107,27 @@ class CustomComponent extends HTMLElement {
 			.toLowerCase();
 	}
 
-	constructor() {
-		const componentClass = new.target;
-		if (!componentClass.defined) {
-			if (!componentClass.tag) throw new Error('Missing custom component tag');
-			componentClass.defined = true;
-			customElements.define(componentClass.tag, componentClass);
-		}
+	static get observedAttributes() {
+		return ['class'];
+	}
 
+	attributeChangedCallback(name, old_value, new_value) {
+		if (name !== 'class') return;
+
+		for (const [class_name, onChange] of this.watched_classes) {
+			const was_present = old_value?.includes(class_name);
+			const is_present = new_value?.includes(class_name);
+			if (was_present !== is_present) onChange(is_present);
+		}
+	}
+
+	constructor() {
 		super();
 
-		// Reate getters for each selector in class static selectors attribute
+		// Watched classes
+		this.watched_classes = [];
+
+		// Create getters for each selector in class static selectors attribute
 		for (const prop in this.constructor.selectors || {}) {
 			const selector = this.constructor.selectors[prop];
 
@@ -128,11 +148,11 @@ class CustomComponent extends HTMLElement {
 	}
 
 	/**
-	 * Defines a custom string attribute with default value
-	 * @param {string} attr_name - Name of the attribute
-	 * @param {any} default_value - Default value for the attribute
+	 * Defines a reactive state with default value
+	 * @param {string} state_name - Name of the state
+	 * @param {any} default_value - Default value for the state
 	 */
-	#str(attr_name, default_value, onChange = null) {
+	setState(state_name, default_value, onChange = null) {
 		// If onchange is an element, bind to its textContent
 		if (onChange instanceof HTMLElement) {
 			const element = onChange;
@@ -141,62 +161,17 @@ class CustomComponent extends HTMLElement {
 			};
 		}
 
-		const snake_case_name = attr_name.replaceAll('-', '_');
-		Object.defineProperty(this, snake_case_name, {
-			get: () => this.getAttribute(attr_name),
+		let state_value;
+
+		Object.defineProperty(this, state_name, {
+			get: () => state_value,
 			set: value => {
-				if (value === null || value === undefined || value === '') this.removeAttribute(attr_name);
-				else this.setAttribute(attr_name, value);
+				state_value = value;
 				onChange?.(value);
 			}
 		});
 
-		this[snake_case_name] = this[snake_case_name] ?? default_value;
-	}
-
-	/**
-	 * Defines a custom boolean attribute with default value
-	 * @param {string} attr_name - Name of the attribute
-	 * @param {boolean} default_value - Default boolean value
-	 */
-	#bool(attr_name, default_value, onChange = null) {
-		const snake_case_name = attr_name.replaceAll('-', '_');
-		Object.defineProperty(this, snake_case_name, {
-			get: () => this.hasAttribute(attr_name),
-			set: value => {
-				if (value) this.setAttribute(attr_name, '');
-				else this.removeAttribute(attr_name);
-				onChange?.(value);
-			}
-		});
-
-		this[snake_case_name] = this[snake_case_name] || default_value;
-	}
-
-	/**
-	 * Defines a custom numeric attribute with default value
-	 * @param {string} attr_name - Name of the attribute
-	 * @param {number} default_value - Default numeric value
-	 */
-	#num(attr_name, default_value, onChange = null) {
-		// If onchange is an element, bind to its textContent
-		if (onChange instanceof HTMLElement) {
-			const element = onChange;
-			onChange = value => {
-				element.textContent = value;
-			};
-		}
-
-		const snake_case_name = attr_name.replaceAll('-', '_');
-		Object.defineProperty(this, snake_case_name, {
-			get: () => +this.getAttribute(attr_name),
-			set: value => {
-				this.setAttribute(attr_name, value);
-				onChange?.(value);
-			}
-		});
-
-		this[snake_case_name] = this.hasAttribute(attr_name) ? this[snake_case_name] : default_value;
+		this[state_name] = default_value;
 	}
 
 	/**
@@ -204,18 +179,25 @@ class CustomComponent extends HTMLElement {
 	 * @param {string} class_name - Name of the class
 	 * @param {boolean} default_present - Whether the class is present by default
 	 */
-	#class(class_name, default_present, onChange = null) {
-		const snake_case_name = class_name.replaceAll('-', '_');
-		Object.defineProperty(this, snake_case_name, {
+	setClass(class_name, default_present, onChange = null) {
+		Object.defineProperty(this, class_name, {
 			get: () => this.classList.contains(class_name),
-			set: value => {
-				this.classList.toggle(class_name, value);
-				onChange?.(value);
-			}
+			set: value => this.classList.toggle(class_name, value)
 		});
 
-		this[snake_case_name] = this[snake_case_name] || default_present;
+		this[class_name] = default_present;
+		onChange(default_present);
+		this.watched_classes.push([class_name, onChange]);
 	}
+}
+
+function register(ComponentClass) {
+	if (ComponentClass.defined) return;
+	const tag = ComponentClass.tag;
+	if (!tag) throw new Error('Missing custom component tag');
+	ComponentClass.defined = true;
+	console.log(`Defining <${tag}> component`);
+	customElements.define(tag, ComponentClass);
 }
 
 /**

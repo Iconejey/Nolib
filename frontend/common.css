@@ -1,0 +1,22 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	--g1: #131313;
+	--g2: #191919;
+	--g3: #1f1f1f;
+	--g4: #242424;
+	--g5: #474747;
+
+	--fg: #c6c6c6;
+
+	--red: #f07178;
+	--yellow: #ffcb6b;
+	--green: #c3e88d;
+	--cyan: #abdcfd;
+	--blue: #82aaff;
+	--purple: #c792ea;
+}

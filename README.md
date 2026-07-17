@@ -13,10 +13,8 @@ class ExampleComponent extends CustomComponent {
 	};
 
 	connectedCallback() {
-		this.#class('hidden', false);
-
 		this.innerHTML = html`
-			<span>Example Component</span>
+			<span class="link">My link</span>
 			<button class="add">Add</button>
 		`;
 
