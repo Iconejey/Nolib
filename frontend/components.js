@@ -163,6 +163,7 @@ class CustomComponent extends HTMLElement {
 
 		let state_value;
 
+		// Define getter and setter
 		Object.defineProperty(this, state_name, {
 			get: () => state_value,
 			set: value => {
@@ -170,6 +171,12 @@ class CustomComponent extends HTMLElement {
 				onChange?.(value);
 			}
 		});
+
+		// If default value is "attr()", get html attribute value and remove it
+		if (default_value === 'attr()') {
+			default_value = this.getAttribute(state_name);
+			this.removeAttribute(state_name);
+		}
 
 		this[state_name] = default_value;
 	}

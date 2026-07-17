@@ -1,0 +1,9 @@
+{
+	"name": "nolib",
+	"version": "1.0.0",
+	"description": "Shared frontend component and style library",
+	"main": "frontend/components.js",
+	"files": [
+		"frontend"
+	]
+}
