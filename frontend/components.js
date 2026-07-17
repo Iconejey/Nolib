@@ -172,10 +172,19 @@ class CustomComponent extends HTMLElement {
 			}
 		});
 
-		// If default value is "attr()", get html attribute value and remove it
-		if (default_value === 'attr()') {
-			default_value = this.getAttribute(state_name);
+		// If default value is "attr()", "attr(num)" or "attr(bool)", get html attribute value and remove it
+		if (default_value.startsWith?.('attr(')) {
+			const type = default_value;
+			const raw_val = this.getAttribute(state_name);
 			this.removeAttribute(state_name);
+
+			if (raw_val === null) {
+				default_value = type === 'attr(bool)' ? false : null;
+			} else {
+				if (type === 'attr(num)') default_value = Number(raw_val);
+				else if (type === 'attr(bool)') default_value = raw_val !== 'false';
+				else default_value = raw_val;
+			}
 		}
 
 		this[state_name] = default_value;
