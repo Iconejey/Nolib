@@ -127,6 +127,9 @@ class CustomComponent extends HTMLElement {
 		// Watched classes
 		this.watched_classes = [];
 
+		// Global event listeners
+		this.global_listeners = [];
+
 		// Create getters for each selector in class static selectors attribute
 		for (const prop in this.constructor.selectors || {}) {
 			const selector = this.constructor.selectors[prop];
@@ -204,6 +207,22 @@ class CustomComponent extends HTMLElement {
 		this[class_name] = default_present;
 		onChange(default_present);
 		this.watched_classes.push([class_name, onChange]);
+	}
+
+	/**
+	 * Adds an event listener on window and removes it on diconnect event
+	 * @param {string} event_name - Event name
+	 * @param {function} callback - The callback to call on event
+	 */
+	globalListener(event_name, callback) {
+		window.addEventListener(event_name, callback);
+		this.global_listeners.push([event_name, callback]);
+	}
+
+	disconnectedCallback() {
+		for (const [event_name, callback] of this.global_listeners) {
+			window.removeEventListener(event_name, callback);
+		}
 	}
 }
 
