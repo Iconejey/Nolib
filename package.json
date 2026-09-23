@@ -3,6 +3,13 @@
 	"version": "1.0.0",
 	"description": "Shared frontend component and style library",
 	"main": "frontend/components.js",
+	"exports": {
+		".": "./frontend/components.js",
+		"./utils": "./frontend/utils.js",
+		"./store": "./frontend/store.js",
+		"./css": "./frontend/common.css",
+		"./package.json": "./package.json"
+	},
 	"files": [
 		"frontend"
 	]
