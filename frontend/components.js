@@ -246,7 +246,7 @@ function register(ComponentClass) {
  */
 function emmet(strings, ...values) {
 	const raw_string = raw(strings, ...values);
-	const match = raw_string.match(/^([a-zA-Z0-9]+)?(?:#([a-zA-Z0-9\-_]+))?(?:\.([a-zA-Z0-9\-_\.]+))?(?:\[([^\]]+)\])?(?:\{([^}]*)\})?$/);
+	const match = raw_string.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?(?:\.([a-zA-Z0-9\-_\.]+))?(?:\[([^\]]+)\])?(?:\{([^}]*)\})?$/);
 
 	if (!match) throw new Error(`Invalid emmet string: ${raw_string}`);
 
